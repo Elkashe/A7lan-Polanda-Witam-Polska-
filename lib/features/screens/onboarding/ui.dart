@@ -1,8 +1,11 @@
 import 'package:a7lanpopo/core/sharedpref/shared.dart';
 import 'package:a7lanpopo/features/constant.dart';
 import 'package:a7lanpopo/features/models/onboarding.dart';
+
+import 'package:a7lanpopo/features/routes.dart';
 import 'package:a7lanpopo/features/screens/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 
 class UiOnBoarding extends StatefulWidget {
@@ -28,7 +31,7 @@ class _UiBoardingState extends State<UiOnBoarding> {
             child: TextButton.icon(
               onPressed: () {
                 CacheHelper.putBool(key: 'onboarding', value: true);
-                Navigator.pushReplacementNamed(context, Constant.register);
+                Navigator.pushReplacementNamed(context, Routes.register);
               },
               label: Text(
                 'Skip',
@@ -60,7 +63,7 @@ class _UiBoardingState extends State<UiOnBoarding> {
                     child: TextButton.icon(
                       onPressed: () {
                         CacheHelper.putBool(key: 'onboarding', value: true);
-                        Navigator.pushReplacementNamed(context, Constant.register);
+                        Navigator.pushReplacementNamed(context, Routes.register);
                       },
                       icon:
                           const Icon(Icons.arrow_forward, color: Colors.black),

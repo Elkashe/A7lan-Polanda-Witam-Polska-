@@ -1,26 +1,40 @@
-import 'package:a7lanpopo/features/constant.dart';
-import 'package:a7lanpopo/features/registeration/regist.dart';
+import 'package:a7lanpopo/features/registeration/registform.dart';
 import 'package:a7lanpopo/features/screens/login/login.dart';
 
 import 'package:a7lanpopo/features/screens/onboarding/ui.dart';
 import 'package:a7lanpopo/features/screens/splash/splash.dart';
 import 'package:flutter/material.dart';
 
+class Routes {
+  static const String splashScreen = '/splashScreen';
+  static const String onBoardingScreen = '/onBoardingScreen';
+  static const String register = '/registerScreen';
+  static const String login = '/login';
+  static const String mainPage = '/mainPage';
+}
+
 class AppRoutes {
-  Route<dynamic>? onGenerateRoute(RouteSettings settings) {
+  static Route generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case Constant.splashScreen:
+      case Routes.splashScreen:
         return MaterialPageRoute(builder: (context) => const SplashScreen());
 
-      case Constant.onBoardingScreen:
+      case Routes.onBoardingScreen:
         return MaterialPageRoute(builder: (context) => const UiOnBoarding());
 
-      case Constant.register:
+      case Routes.register:
         return MaterialPageRoute(builder: (context) => const Registration());
 
-      case Constant.login:
+      case Routes.login:
         return MaterialPageRoute(builder: (context) => const Login());
+      default:
+        return MaterialPageRoute(
+          builder: (_) => Scaffold(
+            body: Center(
+              child: Text('No Routes${settings.name}'),
+            ),
+          ),
+        );
     }
-    return null;
   }
 }

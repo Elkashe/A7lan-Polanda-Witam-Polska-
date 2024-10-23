@@ -1,6 +1,8 @@
 import 'package:a7lanpopo/features/constant.dart';
 import 'package:a7lanpopo/features/models/onboarding.dart';
+import 'package:a7lanpopo/features/registeration/logic/cubit/register_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -9,7 +11,7 @@ class OnboardingUi extends StatelessWidget {
   OnBoarding onBoarding;
    OnboardingUi({super.key, required this.onBoarding});
    
-     
+  
 
   @override
   Widget build(BuildContext context) {
