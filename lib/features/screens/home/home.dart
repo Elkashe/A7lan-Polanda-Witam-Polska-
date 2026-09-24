@@ -1,17 +1,130 @@
+import 'package:a7lanpopo/features/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  String? _firstName;
+  bool _isLoadingProfile = true;
+  bool _isLoggingOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final user = Supabase.instance.client.auth.currentUser;
+
+      if (user == null) {
+        if (!mounted) return;
+
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          Constant.login,
+          (route) => false,
+        );
+
+        return;
+      }
+
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', user.id)
+          .single();
+
+      if (!mounted) return;
+
+      setState(() {
+        _firstName = profile['first_name'] as String?;
+        _isLoadingProfile = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoadingProfile = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not load your profile.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _logout() async {
+    if (_isLoggingOut) return;
+
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    try {
+      await Supabase.instance.client.auth.signOut();
+
+      if (!mounted) return;
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        Constant.login,
+        (route) => false,
+      );
+    } on AuthException catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not log out. Please try again.',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoggingOut = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final displayName =
+        (_firstName != null && _firstName!.trim().isNotEmpty)
+            ? _firstName!.trim()
+            : 'Traveler';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
+
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: Colors.white,
+
         title: Text(
           'Rahala',
           style: GoogleFonts.abhayaLibre(
@@ -20,10 +133,16 @@ class Home extends StatelessWidget {
             color: Colors.purple,
           ),
         ),
+
         actions: [
           IconButton(
+            tooltip: 'Profile',
             onPressed: () {
-              // Profile will be added later
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Profile page coming soon'),
+                ),
+              );
             },
             icon: const Icon(
               Icons.account_circle_outlined,
@@ -31,23 +150,51 @@ class Home extends StatelessWidget {
               size: 30,
             ),
           ),
+
+          IconButton(
+            tooltip: 'Logout',
+            onPressed: _isLoggingOut ? null : _logout,
+            icon: _isLoggingOut
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(
+                    Icons.logout,
+                    color: Colors.black87,
+                  ),
+          ),
+
           const SizedBox(width: 8),
         ],
       ),
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Welcome to Rahala 👋',
-                style: GoogleFonts.abhayaLibre(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
+              _isLoadingProfile
+                  ? const SizedBox(
+                      height: 38,
+                      width: 38,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                      ),
+                    )
+                  : Text(
+                      'Welcome, $displayName 👋',
+                      style: GoogleFonts.abhayaLibre(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
 
               const SizedBox(height: 6),
 
@@ -64,8 +211,10 @@ class Home extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(22),
+
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
+
                   gradient: const LinearGradient(
                     colors: [
                       Colors.purple,
@@ -75,6 +224,7 @@ class Home extends StatelessWidget {
                     end: Alignment.bottomRight,
                   ),
                 ),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -127,6 +277,7 @@ class Home extends StatelessWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 childAspectRatio: 1.25,
+
                 children: const [
                   _ServiceCard(
                     icon: Icons.hotel_outlined,
@@ -176,8 +327,10 @@ class _ServiceCard extends StatelessWidget {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(18),
+
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
+
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -185,14 +338,17 @@ class _ServiceCard extends StatelessWidget {
             ),
           );
         },
+
         child: Container(
           padding: const EdgeInsets.all(18),
+
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: Colors.black12,
             ),
           ),
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -201,7 +357,9 @@ class _ServiceCard extends StatelessWidget {
                 size: 38,
                 color: Colors.purple,
               ),
+
               const SizedBox(height: 10),
+
               Text(
                 title,
                 textAlign: TextAlign.center,
