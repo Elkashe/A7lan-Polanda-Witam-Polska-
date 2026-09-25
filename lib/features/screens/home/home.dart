@@ -2,7 +2,7 @@ import 'package:a7lanpopo/features/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
+import 'package:a7lanpopo/features/screens/hotels/hotels.dart';
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -278,10 +278,18 @@ class _HomeState extends State<Home> {
                 physics: const NeverScrollableScrollPhysics(),
                 childAspectRatio: 1.25,
 
-                children: const [
+                children: [
                   _ServiceCard(
                     icon: Icons.hotel_outlined,
                     title: 'Hotels',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HotelsScreen(),
+                        ),
+                      );
+                    },
                   ),
                   _ServiceCard(
                     icon: Icons.map_outlined,
@@ -316,10 +324,12 @@ class _HomeState extends State<Home> {
 class _ServiceCard extends StatelessWidget {
   final IconData icon;
   final String title;
+  final VoidCallback? onTap;
 
   const _ServiceCard({
     required this.icon,
     required this.title,
+    this.onTap,
   });
 
   @override
@@ -331,13 +341,14 @@ class _ServiceCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
 
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('$title coming soon'),
-            ),
-          );
-        },
+       onTap: onTap ??
+    () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$title coming soon'),
+        ),
+      );
+    },
 
         child: Container(
           padding: const EdgeInsets.all(18),
